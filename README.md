@@ -36,21 +36,6 @@ python IPTracker.py [-h] [-p IP] [-l IP_FILE] [-o OUTPUT_FILE] [-silent] [-stats
 ```
 
 
-## Arguments
-
-```
--h, --help show this help message and exit
--p IP, --ip IP Provide a single IP address
--l IP_FILE, --ip-file IP_FILE
-Provide a file containing a list of IP addresses
--o OUTPUT_FILE, --output-file OUTPUT_FILE
-Save the output to a file
--silent, --silent Run the program in silent mode
--stats, --stats Display stats of the running scan
--t THREADS, --threads THREADS
-Number of concurrent threads to use (default 100)
-```
-
 
 ## Example
 

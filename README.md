@@ -9,12 +9,14 @@ IPTracker is a program that allows you to check the DNS of the IP and return whe
 4. `-stats` switch to display the stats of the running scan, showing stats during the program's execution and not writing a new line for each show stats, but instead replacing it in one line.
 5. If an IP is valid, it is immediately written to the output file if the `-o` switch is used, or it is printed. Valid IPs are not saved to a result list within the program.
 6. `-t` switch for the number of concurrent threads to use (default 100).
+7. `-d` switch to display hostname of valid IP (disabled as default).
+8. Support STD IN/OUT feature. (**NOTE:**Don’t use `-stats` & `-silent` while using STD OUT) 
 
 ## Usage
 
 ```
 usage: iptracker.py [-h] [-l IP_LIST] [-p IP] [-o OUTPUT_FILE] [-silent] [-stats]
-                    [-t THREADS]
+                    [-t THREADS] [-d DESCRIPTION]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -27,12 +29,15 @@ optional arguments:
   -stats, --stats       Display scan statistics.
   -t THREADS, --threads THREADS
                         The number of concurrent threads to use. Default is 100.
+  -d DESCRIPTION, --description DESCRIPTION
+                        Display hostname of valid IP (disabled as default)
+      
 ```
 
 To use IPTracker, the following command is used:
 
 ```
-python IPTracker.py [-h] [-p IP] [-l IP_FILE] [-o OUTPUT_FILE] [-silent] [-stats] [-t THREADS]
+python IPTracker.py [-h] [-p IP] [-l IP_FILE] [-o OUTPUT_FILE] [-silent] [-stats] [-t THREADS] [-d description]
 ```
 
 
@@ -68,6 +73,20 @@ To run the program in silent mode and display stats of the running scan, run the
 ```
 python IPTracker.py -l ip_list.txt -t 200
 ```
+
+To use STD IN/OUT feature with description, run the following command(**NOTE:**Don’t use `-stats` & `-silent` while using STD OUT) :
+
+```
+cat ip_list.txt | python IPTracker.py -d > valid_ips.txt
+```
+
+To use STD IN/OUT feature to only save IP, run the following command(**NOTE:**Don’t use `-stats` & `-silent` while using STD OUT) :
+
+```
+cat ip_list.txt | python IPTracker.py > valid_ips.txt
+```
+
+
 
 ## Requirements
 - Python 3.x

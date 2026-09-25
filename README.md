@@ -1,96 +1,64 @@
 # IPTracker
-A program that checks the validity of DNS of an IP address using socket functions and returns the result. It supports both single IP and file of IPs as input, with options to save the valid IPs to an output file, switch for silent mode, display stats during the scan, and adjust concurrent threads and rate limit for dns requests.
 
-IPTracker is a program that allows you to check the DNS of the IP and return whether it is valid or not. It provides the following features:
+A high-performance, asynchronous DNS reverse lookup tool. IPTracker checks the validity of IP addresses by performing reverse DNS lookups, now rebuilt with `asyncio` to support thousands of concurrent requests with minimal resource consumption.
 
-1. Accepts both a file of IPs and a single IP. To provide a list of IPs, use the `-l` switch, and for a single IP, use the `-p` switch.
-2. Option to save valid IP addresses to an output file. Use the `-o` switch to specify the output file name.
-3. A `-silent` switch for silent mode.
-4. `-stats` switch to display the stats of the running scan, showing stats during the program's execution and not writing a new line for each show stats, but instead replacing it in one line.
-5. If an IP is valid, it is immediately written to the output file if the `-o` switch is used, or it is printed. Valid IPs are not saved to a result list within the program.
-6. `-t` switch for the number of concurrent threads to use (default 100).
-7. `-d` switch to display hostname of valid IP (disabled as default).
-8. Support STD IN/OUT feature. (**NOTE:**Don’t use `-stats` & `-silent` while using STD OUT) 
+## Features
+
+- **Asynchronous Engine:** Fast scanning capabilities using Python's `asyncio`.
+- **CIDR Support:** Automatically expands and scans entire network ranges (e.g., `192.168.1.0/24`).
+- **FCrDNS Validation:** Option to verify Forward-Confirmed reverse DNS to prevent spoofed/dangling records.
+- **JSON Output:** Structured data output (`--json`) for easy integration with other security tools.
+- **Rate Limiting:** Control the exact number of requests per second to avoid bans.
+- **Retry Mechanism:** Built-in exponential backoff for failed lookups in noisy networks.
+- **Pipeline Ready:** Seamlessly integrates with Unix pipelines (`stdin`/`stdout`) without broken pipe errors.
 
 ## Usage
 
+    usage: iptracker.py [-h] [-l LIST] [-p IP] [-o OUTPUT] [-s] [-S] [-t THREADS] 
+                        [-d] [-r RATE_LIMIT] [--retries RETRIES] [--fcrdns] [--json]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -l LIST, --list LIST  A file containing a list of IP addresses or CIDRs.
+      -p IP, --ip IP        A single IP address or CIDR range.
+      -o OUTPUT, --output OUTPUT
+                            The file to save the valid IP addresses.
+      -s, --silent          Run in silent mode (suppress stdout).
+      -S, --stats           Display scan statistics (prints to stderr).
+      -t THREADS, --threads THREADS
+                            Concurrency limit. Default is 1000.
+      -d, --description     Include hostname in standard output.
+      -r RATE_LIMIT, --rate-limit RATE_LIMIT
+                            Maximum requests per second.
+      --retries RETRIES     Number of retries on network failure. Default is 1.
+      --fcrdns              Enable Forward-Confirmed reverse DNS validation.
+      --json                Output results in JSON format.
+
+## Examples
+
+**1. Basic Single IP/CIDR Scan**
+Check a full subnet and display the hostnames:
 ```
-usage: iptracker.py [-h] [-l IP_LIST] [-p IP] [-o OUTPUT_FILE] [-silent] [-stats]
-                    [-t THREADS] [-d DESCRIPTION]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -l IP_LIST, --list IP_LIST
-                        A file containing a list of IP addresses to validate.
-  -p IP, --ip IP        A single IP address to validate.
-  -o OUTPUT_FILE, --output OUTPUT_FILE
-                        The file to save the valid IP addresses.
-  -silent, --silent     Run in silent mode, no output will be displayed.
-  -stats, --stats       Display scan statistics.
-  -t THREADS, --threads THREADS
-                        The number of concurrent threads to use. Default is 100.
-  -d DESCRIPTION, --description DESCRIPTION
-                        Display hostname of valid IP (disabled as default)
-      
-```
-
-To use IPTracker, the following command is used:
-
-```
-python IPTracker.py [-h] [-p IP] [-l IP_FILE] [-o OUTPUT_FILE] [-silent] [-stats] [-t THREADS] [-d description]
-```
-
-
-
-## Example
-
-```
-python iptracker.py -l ip_list.txt -o valid_ips.txt -silent -stats -t 50
+    python iptracker.py -p 192.168.1.0/24 -d
 ```
 
-To check the DNS of a single IP address, run the following command:
-
+**2. High-Speed File Scanning**
+Scan a large list of IPs with 2000 concurrent connections, showing real-time stats:
 ```
-python IPTracker.py -p 192.168.0.1
-```
-
-
-To check the DNS of a list of IP addresses, run the following command:
-
-```
-python IPTracker.py -l ip_list.txt
+    python iptracker.py -l ip_list.txt -t 2000 -S -o valid_ips.txt
 ```
 
-To save the valid IP addresses to an output file, run the following command:
-
+**3. Advanced Security Scan (FCrDNS + JSON)**
+Validate IPs using Forward-Confirmed reverse DNS and output the results as JSON:
 ```
-python IPTracker.py -l ip_list.txt -o valid_ips.txt
-```
-
-
-To run the program in silent mode and display stats of the running scan, run the following command:
-
-```
-python IPTracker.py -l ip_list.txt -t 200
+    python iptracker.py -l ip_list.txt --fcrdns --json -o output.json
 ```
 
-To use STD IN/OUT feature with description, run the following command(**NOTE:**Don’t use `-stats` & `-silent` while using STD OUT) :
-
+**4. Rate-Limited Piped Execution**
+Read from standard input, limit to 50 requests per second, and save valid IPs quietly:
 ```
-cat ip_list.txt | python IPTracker.py -d > valid_ips.txt
+    cat ip_list.txt | python iptracker.py -r 50 > valid_ips.txt
 ```
-
-To use STD IN/OUT feature to only save IP, run the following command(**NOTE:**Don’t use `-stats` & `-silent` while using STD OUT) :
-
-```
-cat ip_list.txt | python IPTracker.py > valid_ips.txt
-```
-
-
 
 ## Requirements
-- Python 3.x
-
-
-
-
+- Python 3.7+
